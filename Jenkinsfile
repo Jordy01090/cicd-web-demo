@@ -40,13 +40,13 @@ pipeline {
         stage("Build Imagen (staging)") {
             steps {
                 echo "Construyendo imagen para staging..."
-                sh "docker build -t :staging ."
+                sh "docker build -t ${APP_NAME}:staging ."
             }
         }
 
         stage("Deploy a Staging") {
             steps {
-                echo "Desplegando en STAGING (puerto )..."
+                echo "Desplegando en STAGING (puerto ${STAGING_PORT})..."
                 sh "docker compose up -d web-staging"
                 echo "Staging actualizado. Verifica en: http://IP-VM:8081"
             }
@@ -61,13 +61,13 @@ pipeline {
         stage("Promover Imagen a Produccion") {
             steps {
                 echo "Promoviendo imagen a produccion..."
-                sh "docker tag :staging :production"
+                sh "docker tag ${APP_NAME}:staging ${APP_NAME}:production"
             }
         }
 
         stage("Deploy a Produccion") {
             steps {
-                echo "Desplegando en PRODUCCION (puerto )..."
+                echo "Desplegando en PRODUCCION (puerto ${PROD_PORT})..."
                 sh "docker compose up -d web-production"
                 echo "Produccion actualizada. Verifica en: http://IP-VM:8082"
             }
@@ -82,7 +82,7 @@ pipeline {
             echo "CI/CD fallo. Revisar logs del build."
         }
         always {
-            sh "docker ps --format \"table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}\" || true"
+            sh 'docker ps --format "table {{.Names}}\\t{{.Image}}\\t{{.Status}}\\t{{.Ports}}" || true'
         }
     }
 }
